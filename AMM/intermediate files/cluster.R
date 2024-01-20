@@ -1,9 +1,10 @@
 #Trying kmeans
-#install.packages("tidyverse", "cluster", "factoextra")
+#install.packages(c("tidyverse", "cluster", "factoextra", "fclust"))
 
 library(tidyverse)  # data manipulation
 library(cluster)    # clustering algorithms
 library(factoextra) # clustering algorithms & visualization
+library(fclust) #fuzzy clustering
 
 #read in df from intermediate data files
 df <- read.csv("intermediate files/combined_df.csv")
@@ -14,6 +15,9 @@ df$elite <- df$Rescaled.Rank < 40  #(recall rank indexes at 0)
 # clustering analysis just based on % women and funding
 # scale data to standard normal for clustering
 gf_df<-cbind.data.frame(scale(df$Percentage.of.Women), scale(df$AwardedAmount))
+
+
+### K Means clustering
 k2 <- kmeans(gf_df, centers = 2, nstart = 25)
 str(k2)
 
@@ -46,7 +50,10 @@ set.seed(123)
 
 # function to compute total within-cluster sum of square 
 fviz_nbclust(gf_df, kmeans, method = "wss")
-#Result: Suggest that the "bend" in the knee happens for 3 clusters
+# sillhouette method instead
+fviz_nbclust(gf_df, kmeans, method = "silhouette")
+#Gap stat suggested cluster of 1, but actually 3 was a better statistic
+#Result: Majority suggest that the "bend" in the knee happens for 3 clusters
 
 k3 <- kmeans(gf_df, centers = 3, nstart = 25)
 str(k3)
@@ -70,3 +77,11 @@ agg3_df <- table(cluster3_df)
 #In the blue cluster, 32 are non-elite and 13 are elite.  So it is 
 #about 29% elite vs about 25% in the whole sample.  That feels like
 #it could be assigned by random chance.
+
+
+### Fuzzy clustering - good for when there are some points that you don't 
+#know which cluster they belong to
+#fc2cm<-Fclust(X=gf_df,k=2, type="standard",noise=TRUE)
+#cluster2f_df <- cbind.data.frame(fc2cm$clus, df$elite)
+#agg2f_df <- table(cluster2f_df)
+#nothing really useful any more than kmeans
