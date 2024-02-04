@@ -5,6 +5,7 @@ library(tidyverse)  # data manipulation
 library(cluster)    # clustering algorithms
 library(factoextra) # clustering algorithms & visualization
 library(fclust) #fuzzy clustering
+library(ggrepel) #for non overlapping labels
 
 #read in df from intermediate data files
 df <- read.csv("intermediate files/combined_df.csv")
@@ -58,25 +59,53 @@ fviz_nbclust(gf_df, kmeans, method = "silhouette")
 k3 <- kmeans(gf_df, centers = 3, nstart = 25)
 str(k3)
 #visualize
-fviz_cluster(k3, data = gf_df)
+k3plot <-fviz_cluster(k3, data = gf_df) +
+  labs(y = "Total NSF funding (scaled)", x = "Proportion of Women (scaled)", title = "") + 
+  theme_light()
+
+
+# Tutorial: https://remiller1450.github.io/s230s19/clustering_tutorial.html
+# example from documention of fviz_cluster
+#  p <- ggpubr::ggline(df, x = "clusters", y = "gap", group = 1, color = linecolor)+
+#ggplot2::geom_errorbar(aes_string(ymin="ymin", ymax="ymax"), width=.2, color = linecolor)+
+#  geom_vline(xintercept = k, linetype=2, color = linecolor)+
+#  labs(y = "Gap statistic (k)", x = "Number of clusters k",
+#       title = "Optimal number of clusters")
+
+# trying to fix legend
+# tutorial https://stackoverflow.com/questions/53572037/adjusting-output-in-fviz-cluster
+# p2 + geom_text(data=p2$data, aes(x=x, y=y, label=name, colour=cluster),vjust=-1, show.legend = F)
+
+k3leg <- fviz_cluster(k3, data = gf_df, geom = c("point")) +
+  scale_color_brewer('Cluster', palette='Set1') + 
+  scale_fill_brewer('Cluster', palette='Set1') +
+  scale_shape_manual('Cluster', values=c(22,23,24)) + 
+  ggtitle(label='') +
+  geom_text_repel(data=k3leg$data, aes(x=x, y=y, label=name, colour=cluster), show.legend = F, force_pull = 3, size = 2.8, min.segment.length = Inf) +
+  theme_light() + theme(legend.position = c(0.8, 0.7)) +
+  labs(y = "Total NSF funding (scaled)", x = "Proportion of Women (scaled)", title = "")
+
+k3leg
 
 #how well did the clustering analysis identify "elite" institutions
 cluster3_df <- cbind.data.frame(k3$cluster, df$elite)
 agg3_df <- table(cluster3_df)
 
+#Lower left cluster
+# 32.5% of all elites are in this cluster and 25% in the whole sample.  That feels like
+# 66.1 % of all non elites are in this cluster
 
-#Cluster 2:
-#everything in the green cluster on the lower right is 100% 
-#"correctly" categorized as non-elite. 
-#Cluster 1:
+#Lower right cluster:
+#everything in the cluster on the lower right is 100% 
+#categorized as non-elite. 
+
+#Upper left cluster:
 #About 75% of everything in red was on the "elite" list. 
 #So there are 9 schools that were "non-elite" categories that 
 #were in the red category. Another way of looking at that is of 
 #the "elites" - about 67.5% were put into the red cluster. 
-#Cluster 3
-#In the blue cluster, 32 are non-elite and 13 are elite.  So it is 
-#about 29% elite vs about 25% in the whole sample.  That feels like
-#it could be assigned by random chance.
+
+
 
 
 ### Fuzzy clustering - good for when there are some points that you don't 
