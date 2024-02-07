@@ -81,7 +81,7 @@ k3leg <- fviz_cluster(k3, data = gf_df, geom = c("point")) +
   scale_fill_brewer('Cluster', palette='Set1') +
   scale_shape_manual('Cluster', values=c(22,23,24)) + 
   ggtitle(label='') +
-  geom_text_repel(data=k3leg$data, aes(x=x, y=y, label=name, colour=cluster), show.legend = F, force_pull = 3, size = 2.8, min.segment.length = Inf) +
+  geom_text_repel(data=k3$data, aes(x=x, y=y, label=name, colour=cluster), show.legend = F, force_pull = 3, size = 2.8, min.segment.length = Inf) +
   theme_light() + theme(legend.position = c(0.8, 0.7)) +
   labs(y = "Total NSF funding (scaled)", x = "Proportion of Women (scaled)", title = "")
 
