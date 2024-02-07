@@ -44,11 +44,15 @@ ggsave("figures/cluster3.png", k3leg)
 
 #how well did the clustering analysis identify "elite" institutions
 cluster3_df <- cbind.data.frame(k3$cluster, df$elite)
+names(cluster3_df) <- c("Cluster", "Elite")
 agg3_df <- table(cluster3_df)
+print(agg3_df)
+chisq.test(agg3_df)
+
 
 #Lower left cluster
-# 32.5% of all elites are in this cluster and 25% in the whole sample.  That feels like
-# 66.1 % of all non elites are in this cluster
+#32.5% of all elites are in this cluster and 25% in the whole sample.  
+#66.1 % of all non elites are in this cluster
 
 #Lower right cluster:
 #everything in the cluster on the lower right is 100% 
